@@ -1,0 +1,60 @@
+# Segmentation RFM
+import datetime as dt
+
+# On définit une date de référence (le lendemain de la dernière commande du dataset)
+ref_date = df_ventes['order_purchase_timestamp'].max() + dt.timedelta(days=1)
+
+# Agrégation par client
+rfm = df_ventes.groupby('customer_id').agg({
+    'order_purchase_timestamp': lambda x: (ref_date - x.max()).days, # Récence
+    'order_id': 'nunique',                                         # Fréquence
+    'price': 'sum'                                                 # Montant
+})
+
+# Renommer les colonnes
+rfm.columns = ['recence', 'frequence', 'montant']
+
+# On divise en 5 groupes (le 5 est le meilleur score)
+rfm['R_score'] = pd.qcut(rfm['recence'], 5, labels=[5, 4, 3, 2, 1])
+rfm['F_score'] = pd.qcut(rfm['frequence'].rank(method='first'), 5, labels=[1, 2, 3, 4, 5])
+rfm['M_score'] = pd.qcut(rfm['montant'], 5, labels=[1, 2, 3, 4, 5])
+
+# Score global (ex: 555 est un client parfait)
+rfm['RFM_Score'] = rfm['R_score'].astype(str) + rfm['F_score'].astype(str) + rfm['M_score'].astype(str)
+
+# Définition des segments avec des expressions régulières (Regex)
+# On simplifie : R-score (Récence) et F-score (Fréquence)
+segs = {
+    r'[1-2][1-2]': 'Hibernating',
+    r'[1-2][3-4]': 'At Risk',
+    r'[1-2]5': 'Can\'t Loose Them',
+    r'3[1-2]': 'About to Sleep',
+    r'33': 'Need Attention',
+    r'[3-4][4-5]': 'Loyal Customers',
+    r'41': 'Promising',
+    r'51': 'New Customers',
+    r'[4-5][2-3]': 'Potential Loyalists',
+    r'5[4-5]': 'Champions'
+}
+
+# On combine R et F pour créer la clé de segmentation
+rfm['Segment'] = rfm['R_score'].astype(str) + rfm['F_score'].astype(str)
+rfm['Segment'] = rfm['Segment'].replace(segs, regex=True)
+
+# Affichage du nombre de clients par segment
+print(rfm['Segment'].value_counts())
+
+import plotly.express as px
+
+# Préparation des données pour le graphique
+df_tree = rfm['Segment'].value_counts().reset_index()
+df_tree.columns = ['Segment', 'Nombre de Clients']
+
+fig = px.treemap(df_tree, path=['Segment'], values='Nombre de Clients',
+                 title='Segmentation RFM des Clients Olist',
+                 color='Nombre de Clients', color_continuous_scale='RdBu')
+
+fig.show()
+
+# Sauvegarde
+fig.write_html("D:/DOSSIERS LOVA/PROJET DATA ANALYSIS/PROJET E-COMMERCE/archive/segmentation_rfm_interactive.html")
