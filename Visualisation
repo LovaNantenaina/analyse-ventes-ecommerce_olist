@@ -1,1 +1,14 @@
+import matplotlib.pyplot as plt
+import seaborn as sns
 
+plt.figure(figsize=(15, 6))
+sns.lineplot(data=evolution_ca, x='month_year', y='price', marker='o', color='royalblue')
+
+plt.title("Évolution du Chiffre d'Affaires Mensuel (Olist)", fontsize=16)
+plt.xticks(rotation=45) # Incliner les dates pour la lisibilité
+plt.ylabel("Chiffre d'Affaires (R$)")
+plt.grid(True, alpha=0.3)
+
+# Sauvegarde
+plt.savefig('D:/DOSSIERS LOVA/PROJET DATA ANALYSIS/PROJET E-COMMERCE/archive/evolution_ventes_mensuelles.png', dpi=300, bbox_inches='tight')
+plt.show()
