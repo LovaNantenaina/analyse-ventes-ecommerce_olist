@@ -1,0 +1,34 @@
+# Evolution du chiffre d'affaire par mois
+# Eventuelles print
+df_ventes
+
+
+# Conversion en format Date de la colonne order_purchase_timestamp
+df_ventes['order_purchase_timestamp'] = pd.to_datetime(df_ventes['order_purchase_timestamp'])
+
+# Création d'une colonne "Année-Mois" pour le groupement
+# .dt.to_period('M') permet d'isoler le mois et l'année (ex: 2017-01)
+df_ventes['month_year'] = df_ventes['order_purchase_timestamp'].dt.to_period('M')
+
+# Calcul du Chiffre d'Affaires mensuel
+evolution_ca = df_ventes.groupby('month_year')['price'].sum().reset_index()
+
+# Conversion en chaîne pour l'affichage graphique
+evolution_ca['month_year'] = evolution_ca['month_year'].astype(str)
+
+# Visualisation de la Croissance
+# Utilisons une courbe (Lineplot) pour montrer l'évolution du business dans le temps.
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(15, 6))
+sns.lineplot(data=evolution_ca, x='month_year', y='price', marker='o', color='royalblue')
+
+plt.title("Évolution du Chiffre d'Affaires Mensuel (Olist)", fontsize=16)
+plt.xticks(rotation=45) # Incliner les dates pour la lisibilité
+plt.ylabel("Chiffre d'Affaires (R$)")
+plt.grid(True, alpha=0.3)
+
+# Sauvegarde
+plt.savefig('D:/DOSSIERS LOVA/PROJET DATA ANALYSIS/PROJET E-COMMERCE/archive/evolution_ventes_mensuelles.png', dpi=300, bbox_inches='tight')
+plt.show()
