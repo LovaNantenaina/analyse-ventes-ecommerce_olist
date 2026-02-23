@@ -1,0 +1,10 @@
+# Chargement des données
+import pandas as pd
+orders = pd.read_csv('D:/DOSSIERS LOVA/PROJET DATA ANALYSIS/PROJET E-COMMERCE/archive/olist_orders_dataset.csv')
+items = pd.read_csv('D:/DOSSIERS LOVA/PROJET DATA ANALYSIS/PROJET E-COMMERCE/archive/olist_order_items_dataset.csv')
+
+# Exploration rapide : Les 5 premières lignes
+print(orders.head())
+print(items.head())
+orders
+items
