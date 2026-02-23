@@ -1,0 +1,21 @@
+# Chargement des tables (Produits et Traduction)
+import pandas as pd
+translations = pd.read_csv('D:/DOSSIERS LOVA/PROJET DATA ANALYSIS/PROJET E-COMMERCE/archive/product_category_name_translation.csv')
+products = pd.read_csv('D:/DOSSIERS LOVA/PROJET DATA ANALYSIS/PROJET E-COMMERCE/archive/olist_products_dataset.csv')
+
+translations
+products
+
+# Création d'un dictionnaire de traduction pour un mapping rapide
+# Cela transforme le fichier de traduction en un format {portugais: anglais}
+mapping_dict = dict(zip(translations['product_category_name'],
+                        translations['product_category_name_english']))
+
+# Application de la traduction
+# .map() recherche chaque nom portugais dans le dictionnaire et le remplace
+products['product_category_name_eng'] = products['product_category_name'].map(mapping_dict)
+
+# 4. Vérification des résultats
+print("Aperçu des catégories traduites :")
+print(products[['product_category_name', 'product_category_name_eng']].head())
+print(products['product_category_name_eng'].isnull().sum())
