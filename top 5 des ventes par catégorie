@@ -1,0 +1,12 @@
+# La Jointure (Merge) entre les items et les produits
+# On utilise 'product_id' comme clé commune
+df_produits_vendus = pd.merge(items, products, on='product_id', how='inner')
+
+# Calcul du Chiffre d'Affaires (CA) par catégorie
+# On groupe par catégorie et on additionne le prix
+top_categories = df_produits_vendus.groupby('product_category_name_eng')['price'].sum().sort_values(ascending=False)
+top_categories
+
+# Affichage du Top 5
+print("--- Top 5 des catégories par Chiffre d'Affaires ---")
+print(top_categories.head(5))
