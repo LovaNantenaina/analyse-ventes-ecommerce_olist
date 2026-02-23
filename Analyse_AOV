@@ -1,0 +1,28 @@
+# AOV (Average Order Value)
+# Calcul du CA total et du nombre de commandes uniques
+total_revenue = df_ventes['price'].sum()
+total_orders = df_ventes['order_id'].nunique()
+
+# Calcul du Panier Moyen global
+aov_global = total_revenue / total_orders
+print(f"Le Panier Moyen global est de : {aov_global:.2f} R$")
+
+# ANALYSE AVANCÉE : Évolution du Panier Moyen par mois
+# On groupe par mois et on fait le ratio (Somme des prix / Nombre d'ID uniques)
+aov_mensuel = df_ventes.groupby('month_year').apply(
+    lambda x: x['price'].sum() / x['order_id'].nunique()
+).reset_index()
+
+aov_mensuel.columns = ['month_year', 'panier_moyen']
+
+# Visualisation de la rentabilité
+plt.figure(figsize=(12, 5))
+sns.barplot(data=aov_mensuel, x='month_year', y='panier_moyen', color='teal')
+
+plt.title("Évolution du Panier Moyen (AOV) par Mois", fontsize=15)
+plt.xticks(rotation=45)
+plt.ylabel("Valeur Moyenne (R$)")
+
+# Sauvegarde
+plt.savefig('D:/DOSSIERS LOVA/PROJET DATA ANALYSIS/PROJET E-COMMERCE/archive/panier_moyen_mensuel.png', dpi=300, bbox_inches='tight')
+plt.show()
