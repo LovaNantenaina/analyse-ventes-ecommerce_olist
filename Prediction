@@ -42,3 +42,63 @@ plt.show()
 print("--- RAPPORT DE PERFORMANCE ---")
 y_pred = model.predict(X_test)
 print(classification_report(y_test, y_pred))
+
+# Prédire si un client appartient au segment "Haut de Gamme" (Panier élevé) en fonction de son comportement (Récence et Fréquence).
+import pandas as pd
+from xgboost import XGBClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, confusion_matrix
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# PRÉPARATION DES DONNÉES (Sur l'ensemble du dataset)
+# Calcul du RFM global
+df_rfm = df_ventes.groupby('customer_id').agg({
+    'order_purchase_timestamp': lambda x: (df_ventes['order_purchase_timestamp'].max() - x.max()).days,
+    'order_id': 'count',
+    'price': 'sum'
+})
+df_rfm.columns = ['Recence', 'Frequence', 'Montant_Total']
+
+# CRÉATION DE LA CIBLE (Target)
+# On définit un client "VIP" comme quelqu'un qui dépense plus que la médiane
+seuil_vip = df_rfm['Montant_Total'].median()
+df_rfm['Is_VIP'] = (df_rfm['Montant_Total'] > seuil_vip).astype(int)
+
+# ENTRAÎNEMENT DU MODÈLE (Classification)
+X = df_rfm[['Recence', 'Frequence']]
+y = df_rfm['Is_VIP']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Utilisation d'un Classifieur (et non plus un Regresseur)
+model = XGBClassifier(n_estimators=100, max_depth=3, learning_rate=0.1)
+model.fit(X_train, y_train)
+
+# VISUALISATION : L'IMPORTANCE DES VARIABLES
+plt.figure(figsize=(10, 6))
+importances = pd.Series(model.feature_importances_, index=X.columns)
+importances.sort_values().plot(kind='barh', color='salmon')
+plt.title('Importance des variables pour identifier un client VIP')
+plt.xlabel('Score d\'Importance')
+plt.show()
+plt.savefig('D:/DOSSIERS LOVA/PROJET DATA ANALYSIS/PROJET E-COMMERCE/archive/feature_importance_vip.png')
+
+# ÉVALUATION
+print("--- RAPPORT DE PERFORMANCE ---")
+y_pred = model.predict(X_test)
+print(classification_report(y_test, y_pred))
+
+
+# Matrice de confusion
+# Création de la matrice
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+cm = confusion_matrix(y_test, y_pred)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['Standard', 'VIP'])
+
+# Affichage
+plt.figure(figsize=(8, 6))
+disp.plot(cmap='Blues')
+plt.title('Matrice de Confusion : Prédiction Clients VIP')
+plt.show()
+
