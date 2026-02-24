@@ -15,3 +15,9 @@ Exploiter une base de données relationnelle complexe pour extraire des indicate
 - [ ] Analyse du Chiffre d'Affaires par catégorie (Top 5).
 - [ ] Traduction automatisée des catégories (Portugais -> Anglais).
 - [ ] Visualisation de la croissance mensuelle.
+
+🧠 Modélisation Prédictive (Classification)
+Objectif : Identifier les profils "VIP" (dépenses > médiane) dès leur premier achat.
+Modèle : XGBoost Classifier.
+Résultat : Le modèle atteint une précision de [Votre Score Recall/Precision] sur le segment VIP.
+Visualisation : La matrice de confusion confirme la capacité du modèle à isoler les clients à fort potentiel.
